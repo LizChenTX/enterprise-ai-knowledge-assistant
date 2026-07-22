@@ -3,5 +3,7 @@ name = "enterprise-ai-knowledge-assistant"
 version = "0.1.0"
 description = "Built a production-ready Enterprise AI Knowledge Assistant using Retrieval-Augmented Generation (RAG)"
 readme = "README.md"
-requires-python = ">=3.11,<3.13"
-dependencies = []
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2.13.4",
+]
