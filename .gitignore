@@ -1,0 +1,78 @@
+# =========================
+# Python cache
+# =========================
+
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Python build
+build/
+dist/
+*.egg-info/
+
+# =========================
+# Virtual Environment
+# =========================
+
+.venv/
+venv/
+env/
+ENV/
+
+# =========================
+# Environment Variables
+# =========================
+
+.env
+.env.*
+
+# Keep example config
+!.env.example
+
+
+# =========================
+# Test / Coverage
+# =========================
+
+.pytest_cache/
+.coverage
+htmlcov/
+
+# =========================
+# Type checking / Lint
+# =========================
+
+.mypy_cache/
+.ruff_cache/
+
+# =========================
+# IDE
+# =========================
+
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# =========================
+# Jupyter
+# =========================
+
+.ipynb_checkpoints/
+
+
+# =========================
+# Logs
+# =========================
+
+*.log
+
+
+# =========================
+# OS temp files
+# =========================
+
+*.tmp
+*.temp
