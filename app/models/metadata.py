@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List, Optional
-
 from pydantic import BaseModel, Field
+from app.models.enums import DocumentSource, DocumentType
 
 class Metadata(BaseModel):
     """Business metadata describing a document.
@@ -10,13 +10,14 @@ class Metadata(BaseModel):
     and retrieval optimization."""
 
     title: str
-    source: str = Field(
+    source: DocumentSource = Field(
         description="Document source, e.g. markdown, pdf, confluence"
     )
 
-    document_type: str = Field(
-        description="architecture, runbook, incident, api...")
-    
+    document_type: DocumentType = Field(
+        description="architecture, runbook, incident, api..."
+    )
+
     service: Optional[str] = Field(
         default=None,
         description="Related business service."

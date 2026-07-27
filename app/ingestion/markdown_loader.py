@@ -2,6 +2,7 @@ from pathlib import Path
 
 from app.models.document import Document
 from app.models.metadata import Metadata
+from app.models.enums import DocumentSource, DocumentType
 
 
 class MarkdownLoader:
@@ -39,8 +40,8 @@ class MarkdownLoader:
 
         metadata = Metadata(
             title=file_path.stem,
-            source="markdown",
-            document_type="markdown",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.OTHER,
         )
 
         return Document(

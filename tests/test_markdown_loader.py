@@ -2,6 +2,7 @@ from pathlib import Path
 import pytest
 
 from app.ingestion.markdown_loader import MarkdownLoader
+from app.models.enums import DocumentSource, DocumentType
 
 
 def test_load_markdown_file():
@@ -12,8 +13,8 @@ def test_load_markdown_file():
 
     assert document.content.startswith("# Authentication")
     assert document.metadata.title == "architecture"
-    assert document.metadata.source == "markdown"
-    assert document.metadata.document_type == "markdown"
+    assert document.metadata.source == DocumentSource.MARKDOWN
+    assert document.metadata.document_type == DocumentType.ARCHITECTURE
 
 def test_file_not_found():
     loader = MarkdownLoader()
