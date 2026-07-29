@@ -4,18 +4,25 @@ from pydantic import BaseModel, Field
 from app.models.enums import DocumentSource, DocumentType
 
 class Metadata(BaseModel):
-    """Business metadata describing a document.
+    """
+    Metadata describing a document.
 
-    Metadata is used for filtering, organization,
-    and retrieval optimization."""
+    Technical metadata:
+        - source
+
+    Business metadata:
+        - document_type
+        - service
+        - owner
+    """
 
     title: str
     source: DocumentSource = Field(
-        description="Document source, e.g. markdown, pdf, confluence"
+        description="Original source of the document."
     )
 
     document_type: DocumentType = Field(
-        description="architecture, runbook, incident, api..."
+        description="Business category of the document."
     )
 
     service: Optional[str] = Field(
