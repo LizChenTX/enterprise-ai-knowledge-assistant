@@ -25,6 +25,11 @@ class Chunk(BaseModel):
     content: str = Field(
         description="Chunk text content.",
     )
+    
+    section: str | None = Field(
+        default=None,
+        description="Logical section this chunk belongs to.",
+    )
 
     metadata: Metadata
 
@@ -40,3 +45,4 @@ class Chunk(BaseModel):
         default=0,
         description="Estimated number of tokens.",
     )
+

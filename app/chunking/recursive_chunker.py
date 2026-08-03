@@ -54,3 +54,39 @@ class RecursiveChunker(BaseChunker):
     ) -> list[str]:
 
         return text.split("\n\n")
+    
+    def _parse_markdown_sections(
+        self,
+        text: str,
+    ) -> list[tuple[str | None, str]]:
+        """
+        Parse a markdown document into (section, paragraph) pairs.
+        """
+
+        sections: list[tuple[str | None, str]] = []
+
+        current_section: str | None = None
+
+        paragraphs = text.split("\n\n")
+
+        for paragraph in paragraphs:
+
+            paragraph = paragraph.strip()
+
+            if not paragraph:
+                continue
+
+            if paragraph.startswith("#"):
+
+                current_section = paragraph.lstrip("#").strip()
+
+                continue
+
+            sections.append(
+                (
+                    current_section,
+                    paragraph,
+                )
+            )
+
+        return sections
