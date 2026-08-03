@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from app.config.chunking_config import ChunkingConfig
 from app.models.chunk import Chunk
 from app.models.document import Document
 
@@ -10,7 +11,10 @@ class BaseChunker(ABC):
     """
 
     @abstractmethod
-    def chunk(self, document: Document) -> list[Chunk]:
+    def chunk(self,
+              document: Document,
+              config: ChunkingConfig
+              ) -> list[Chunk]:
         """
         Split a document into chunks.
         """

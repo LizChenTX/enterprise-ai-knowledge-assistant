@@ -41,7 +41,7 @@ class MarkdownLoader:
         metadata = Metadata(
             title=file_path.stem,
             source=DocumentSource.MARKDOWN,
-            document_type=DocumentType.OTHER,
+            document_type=DocumentType.ARCHITECTURE,
         )
 
         return Document(
