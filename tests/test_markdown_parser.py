@@ -1,4 +1,5 @@
-from app.chunking.recursive_chunker import RecursiveChunker
+from app.models.section import Section
+from app.parsers.markdown_parser import MarkdownParser
 
 
 def test_parse_markdown_sections():
@@ -11,25 +12,23 @@ def test_parse_markdown_sections():
         "PostgreSQL."
     )
 
-    parser = RecursiveChunker()
+    parser = MarkdownParser()
 
-    sections = parser._parse_markdown_sections(text)
+    sections = parser.parse(text)
 
-    assert len(sections) == 3
+    assert len(sections) == 2
 
-    assert sections[0] == (
-        "Authentication",
-        "JWT token.",
+    assert sections[0] == Section(
+        title="Authentication",
+        content=(
+            "JWT token.\n\n"
+            "OAuth token."
+        ),
     )
 
-    assert sections[1] == (
-        "Authentication",
-        "OAuth token.",
-    )
-
-    assert sections[2] == (
-        "Database",
-        "PostgreSQL.",
+    assert sections[1] == Section(
+        title="Database",
+        content="PostgreSQL.",
     )
 
 def test_parse_without_heading():
@@ -39,18 +38,16 @@ def test_parse_without_heading():
         "Paragraph Two."
     )
 
-    parser = RecursiveChunker()
+    parser = MarkdownParser()
 
-    sections = parser._parse_markdown_sections(text)
+    sections = parser.parse(text)
 
-    assert len(sections) == 2
+    assert len(sections) == 1
 
-    assert sections[0] == (
-        None,
-        "Paragraph One.",
-    )
-
-    assert sections[1] == (
-        None,
-        "Paragraph Two.",
+    assert sections[0] == Section(
+        title=None,
+        content=(
+            "Paragraph One.\n\n"
+            "Paragraph Two."
+        ),
     )
