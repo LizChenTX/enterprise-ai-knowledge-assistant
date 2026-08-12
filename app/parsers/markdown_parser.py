@@ -12,18 +12,24 @@ class MarkdownParser:
     ) -> list[Section]:
         sections: list[Section] = []
 
-        current_title: str | None = None
+        heading_path: list[str] = []
         current_content: list[str] = []
 
         for line in text.splitlines():
-            if line.startswith("# "):
+            heading = self._parse_heading(line)
+
+            if heading is not None:
                 self._add_section(
                     sections=sections,
-                    title=current_title,
+                    heading_path=heading_path,
                     content_lines=current_content,
                 )
 
-                current_title = line[2:].strip()
+                level, title = heading
+
+                heading_path = heading_path[: level - 1]
+                heading_path.append(title)
+
                 current_content = []
 
             else:
@@ -31,16 +37,36 @@ class MarkdownParser:
 
         self._add_section(
             sections=sections,
-            title=current_title,
+            heading_path=heading_path,
             content_lines=current_content,
         )
 
         return sections
 
+    def _parse_heading(
+        self,
+        line: str,
+    ) -> tuple[int, str] | None:
+        stripped_line = line.strip()
+
+        if not stripped_line.startswith("#"):
+            return None
+
+        level = len(stripped_line) - len(
+            stripped_line.lstrip("#")
+        )
+
+        title = stripped_line[level:].strip()
+
+        if not title:
+            return None
+
+        return level, title
+
     def _add_section(
         self,
         sections: list[Section],
-        title: str | None,
+        heading_path: list[str],
         content_lines: list[str],
     ) -> None:
         content = "\n".join(content_lines).strip()
@@ -48,7 +74,7 @@ class MarkdownParser:
         if content:
             sections.append(
                 Section(
-                    title=title,
+                    heading_path=heading_path.copy(),
                     content=content,
                 )
             )

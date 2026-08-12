@@ -5,13 +5,14 @@ class Section(BaseModel):
     """
     A logical section extracted from a document.
 
-    A section preserves document structure before the content
-    is split into smaller retrievable chunks.
+    The heading path preserves the hierarchical structure
+    of the source document while keeping sections flat for
+    downstream processing.
     """
 
-    title: str | None = Field(
-        default=None,
-        description="Section title, if available.",
+    heading_path: list[str] = Field(
+        default_factory=list,
+        description="Hierarchical path of headings for this section.",
     )
 
     content: str = Field(
