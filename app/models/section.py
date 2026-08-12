@@ -5,14 +5,15 @@ class Section(BaseModel):
     """
     A logical section extracted from a document.
 
-    It preserves document structure before chunking.
+    A section preserves document structure before the content
+    is split into smaller retrievable chunks.
     """
 
     title: str | None = Field(
         default=None,
-        description="Section title.",
+        description="Section title, if available.",
     )
 
     content: str = Field(
-        description="Section content.",
+        description="Content belonging to this section.",
     )
