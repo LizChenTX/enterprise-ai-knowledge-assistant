@@ -138,3 +138,59 @@ def test_chunk_preserves_section_hierarchy():
     assert chunks[0].content == (
         "JWT tokens expire after one hour."
     )
+
+def test_large_paragraph_is_split_recursively():
+    section = Section(
+        heading_path=["Authentication"],
+        content=(
+            "This is the first sentence. "
+            "This is the second sentence. "
+            "This is the third sentence."
+        ),
+    )
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=40,
+            chunk_overlap=0,
+        )
+    )
+
+    chunks = chunker.chunk([section])
+
+    assert len(chunks) > 1
+
+    assert all(
+        len(chunk.content) <= 40
+        for chunk in chunks
+    )
+
+    assert all(
+        chunk.section_path == ["Authentication"]
+        for chunk in chunks
+    )
+
+def test_fallback_to_word_split():
+    section = Section(
+        heading_path=["Test"],
+        content=(
+            "one two three four five six "
+            "seven eight nine ten eleven twelve"
+        ),
+    )
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=15,
+            chunk_overlap=0,
+        )
+    )
+
+    chunks = chunker.chunk([section])
+
+    assert len(chunks) > 1
+
+    assert all(
+        len(chunk.content) <= 15
+        for chunk in chunks
+    )
