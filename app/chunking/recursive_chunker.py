@@ -2,8 +2,20 @@ from app.models.chunk import Chunk
 from app.models.document import Document
 from app.models.section import Section
 
+DEFAULT_SEPARATORS = [
+    "\n\n",
+    "\n",
+    ". ",
+    " ",
+]
 
 class RecursiveChunker:
+
+    def __init__(
+        self,
+        config: ChunkConfig | None = None,
+    ):
+        self.config = config or ChunkConfig()
 
     def chunk(
         self,
