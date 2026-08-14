@@ -1,92 +1,58 @@
-from app.chunking.base_chunker import BaseChunker
-from app.config.chunking_config import ChunkingConfig
 from app.models.chunk import Chunk
 from app.models.document import Document
+from app.models.section import Section
 
 
-class RecursiveChunker(BaseChunker):
-    """
-    Recursive chunking strategy.
-
-    First version:
-    split document by paragraphs.
-    """
+class RecursiveChunker:
 
     def chunk(
         self,
         document: Document,
-        config: ChunkingConfig,
+        sections: list[Section],
     ) -> list[Chunk]:
 
-        paragraphs = self._split_paragraphs(
-            document.content
-        )
+        chunks: list[Chunk] = []
 
-        chunks = []
+        chunk_index = 0
 
-        current_index = 0
+        for section in sections:
 
-        for paragraph in paragraphs:
-
-            if not paragraph.strip():
-                continue
-
-            chunk = Chunk(
-                document_id=document.id,
-                chunk_index=current_index,
-                content=paragraph,
-                metadata=document.metadata,
-                start_offset=0,
-                end_offset=len(paragraph),
-                token_count=0,
+            paragraphs = self._split_paragraphs(
+                section.content
             )
 
-            chunks.append(chunk)
+            for paragraph in paragraphs:
 
-            current_index += 1
+                start_offset = document.content.find(
+                    paragraph
+                )
+
+                end_offset = (
+                    start_offset + len(paragraph)
+                )
+
+                chunks.append(
+                    Chunk(
+                        document_id=document.id,
+                        chunk_index=chunk_index,
+                        content=paragraph,
+                        metadata=document.metadata,
+                        start_offset=start_offset,
+                        end_offset=end_offset,
+                        section_path=section.heading_path.copy(),
+                    )
+                )
+
+                chunk_index += 1
 
         return chunks
-
 
     def _split_paragraphs(
         self,
         text: str,
     ) -> list[str]:
-
-        return text.split("\n\n")
-    
-    def _parse_markdown_sections(
-        self,
-        text: str,
-    ) -> list[tuple[str | None, str]]:
-        """
-        Parse a markdown document into (section, paragraph) pairs.
-        """
-
-        sections: list[tuple[str | None, str]] = []
-
-        current_section: str | None = None
-
-        paragraphs = text.split("\n\n")
-
-        for paragraph in paragraphs:
-
-            paragraph = paragraph.strip()
-
-            if not paragraph:
-                continue
-
-            if paragraph.startswith("#"):
-
-                current_section = paragraph.lstrip("#").strip()
-
-                continue
-
-            sections.append(
-                (
-                    current_section,
-                    paragraph,
-                )
-            )
-
-        return sections
+        return [
+            paragraph.strip()
+            for paragraph in text.split("\n\n")
+            if paragraph.strip()
+        ]

@@ -1,21 +1,19 @@
 from abc import ABC, abstractmethod
 
-from app.config.chunking_config import ChunkingConfig
 from app.models.chunk import Chunk
 from app.models.document import Document
+from app.models.section import Section
 
 
 class BaseChunker(ABC):
-    """
-    Abstract interface for all chunking strategies.
-    """
 
     @abstractmethod
-    def chunk(self,
-              document: Document,
-              config: ChunkingConfig
-              ) -> list[Chunk]:
+    def chunk(
+        self,
+        document: Document,
+        sections: list[Section],
+    ) -> list[Chunk]:
         """
-        Split a document into chunks.
+        Split structured document sections into retrievable chunks.
         """
-        raise NotImplementedError
+        ...

@@ -26,9 +26,9 @@ class Chunk(BaseModel):
         description="Chunk text content.",
     )
     
-    section: str | None = Field(
-        default=None,
-        description="Logical section this chunk belongs to.",
+    section_path: list[str] = Field(
+        default_factory=list,
+        description="Hierarchical section path this chunk belongs to.",
     )
 
     metadata: Metadata
