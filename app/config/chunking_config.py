@@ -1,17 +1,21 @@
 from pydantic import BaseModel, Field
 from pydantic import BaseModel, Field, model_validator
 
-
-
 class ChunkConfig(BaseModel):
+    """
+    Configuration for document chunking.
+    """
+
     chunk_size: int = Field(
         default=500,
         gt=0,
+        description="Maximum size of each chunk.",
     )
 
     chunk_overlap: int = Field(
         default=0,
         ge=0,
+        description="Number of overlapping characters between chunks.",
     )
 
     @model_validator(mode="after")

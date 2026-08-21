@@ -14,6 +14,6 @@ class BaseChunker(ABC):
         sections: list[Section],
     ) -> list[Chunk]:
         """
-        Split structured document sections into retrievable chunks.
+        Split document sections into retrievable chunks.
         """
         ...
