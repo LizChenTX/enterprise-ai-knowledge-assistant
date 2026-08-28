@@ -31,12 +31,21 @@ class RecursiveChunker(BaseChunker):
         chunk_index = 0
 
         for section in sections:
-            text_chunks = self._split_recursively(
+            # text_chunks = self._split_recursively(
+            #     section.content,
+            #     DEFAULT_SEPARATORS,
+            # )
+
+            text_units = self._split_recursively(
                 section.content,
                 DEFAULT_SEPARATORS,
             )
 
-            for text in text_chunks:
+            packed_chunks = self._pack_chunks(
+                text_units
+            )
+
+            for text in packed_chunks:
                 start_offset = document.content.find(text)
                 end_offset = start_offset + len(text)
                 chunks.append(
@@ -117,3 +126,45 @@ class RecursiveChunker(BaseChunker):
                 chunk_size,
             )
         ]
+
+    def _pack_chunks(
+        self,
+        units: list[str],
+    ) -> list[str]:
+
+        chunks: list[str] = []
+        current_units: list[str] = []
+        current_length = 0
+
+        for unit in units:
+            unit_length = len(unit)
+
+            separator_length = 2 if current_units else 0
+
+            if (
+                current_units
+                and current_length
+                + separator_length
+                + unit_length
+                > self.config.chunk_size
+            ):
+                chunks.append(
+                    "\n\n".join(current_units)
+                )
+
+                current_units = [unit]
+                current_length = unit_length
+
+            else:
+                current_units.append(unit)
+
+                current_length += (
+                    separator_length + unit_length
+                )
+
+        if current_units:
+            chunks.append(
+                "\n\n".join(current_units)
+            )
+
+        return chunks

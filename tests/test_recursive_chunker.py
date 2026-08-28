@@ -354,3 +354,43 @@ def test_recursive_split_by_word():
         len(chunk.content) <= 15
         for chunk in chunks
     )
+
+def test_small_units_are_packed():
+    document = Document(
+        content=(
+            "First concept.\n\n"
+            "Second concept.\n\n"
+            "Third concept."
+        ),
+        metadata=Metadata(
+            title="test",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.ARCHITECTURE,
+        ),
+    )
+
+    sections = [
+        Section(
+            heading_path=["Test"],
+            content=document.content,
+        )
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=32,
+            chunk_overlap=0,
+        )
+    )
+
+    chunks = chunker.chunk(
+        document=document,
+        sections=sections,
+    )
+
+    assert len(chunks) < 3
+
+    assert all(
+        len(chunk.content) <= 32
+        for chunk in chunks
+    )
