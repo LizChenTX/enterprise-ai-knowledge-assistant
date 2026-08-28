@@ -394,3 +394,48 @@ def test_small_units_are_packed():
         len(chunk.content) <= 32
         for chunk in chunks
     )
+
+def test_chunk_sections_within_chunk_size():
+    document = Document(
+        content=(
+            "JWT token explanation.\n\n"
+            "OAuth explanation.\n\n"
+            "PostgreSQL information."
+        ),
+        metadata=Metadata(
+            title="test",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.ARCHITECTURE,
+        ),
+    )
+
+    sections = [
+        Section(
+            heading_path=["Authentication"],
+            content=(
+                "JWT token explanation.\n\n"
+                "OAuth explanation."
+            ),
+        ),
+        Section(
+            heading_path=["Database"],
+            content="PostgreSQL information.",
+        ),
+    ]
+
+    chunker = RecursiveChunker()
+
+    chunks = chunker.chunk(
+        document=document,
+        sections=sections,
+    )
+
+    assert len(chunks) == 2
+
+    assert chunks[0].section_path == [
+        "Authentication"
+    ]
+
+    assert chunks[1].section_path == [
+        "Database"
+    ]
