@@ -46,51 +46,6 @@ def test_recursive_chunker():
         "Authentication"
     ]
 
-def test_chunk_sections_within_chunk_size():
-    document = Document(
-        content=(
-            "JWT token explanation.\n\n"
-            "OAuth explanation.\n\n"
-            "PostgreSQL information."
-        ),
-        metadata=Metadata(
-            title="test",
-            source=DocumentSource.MARKDOWN,
-            document_type=DocumentType.ARCHITECTURE,
-        ),
-    )
-
-    sections = [
-        Section(
-            heading_path=["Authentication"],
-            content=(
-                "JWT token explanation.\n\n"
-                "OAuth explanation."
-            ),
-        ),
-        Section(
-            heading_path=["Database"],
-            content="PostgreSQL information.",
-        ),
-    ]
-
-    chunker = RecursiveChunker()
-
-    chunks = chunker.chunk(
-        document=document,
-        sections=sections,
-    )
-
-    assert len(chunks) == 2
-
-    assert chunks[0].section_path == [
-        "Authentication"
-    ]
-
-    assert chunks[1].section_path == [
-        "Database"
-    ]
-
 def test_chunk_preserves_section_hierarchy():
     document = Document(
         content="JWT tokens expire after one hour.",
@@ -439,3 +394,47 @@ def test_chunk_sections_within_chunk_size():
     assert chunks[1].section_path == [
         "Database"
     ]
+
+def test_chunks_do_not_cross_section_boundaries():
+    document = Document(
+        content=(
+            "JWT explanation.\n\n"
+            "PostgreSQL explanation."
+        ),
+        metadata=Metadata(
+            title="architecture",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.ARCHITECTURE,
+        ),
+    )
+
+    sections = [
+        Section(
+            heading_path=["Authentication"],
+            content="JWT explanation.",
+        ),
+        Section(
+            heading_path=["Database"],
+            content="PostgreSQL explanation.",
+        ),
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=100,
+            chunk_overlap=0,
+        )
+    )
+
+    chunks = chunker.chunk(
+        document=document,
+        sections=sections,
+    )
+
+    assert len(chunks) == 2
+
+    assert chunks[0].content == "JWT explanation."
+    assert chunks[0].section_path == ["Authentication"]
+
+    assert chunks[1].content == "PostgreSQL explanation."
+    assert chunks[1].section_path == ["Database"]
