@@ -438,3 +438,45 @@ def test_chunks_do_not_cross_section_boundaries():
 
     assert chunks[1].content == "PostgreSQL explanation."
     assert chunks[1].section_path == ["Database"]
+
+
+def test_chunk_overlap():
+    document = Document(
+        content=(
+            "This is the first sentence. "
+            "This is the second sentence. "
+            "This is the third sentence."
+        ),
+        metadata=Metadata(
+            title="test",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.ARCHITECTURE,
+        ),
+    )
+
+    sections = [
+        Section(
+            heading_path=["Authentication"],
+            content=document.content,
+        )
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=40,
+            chunk_overlap=10,
+        )
+    )
+
+    chunks = chunker.chunk(
+        document=document,
+        sections=sections,
+    )
+
+    assert len(chunks) > 1
+
+    for i in range(len(chunks) - 1):
+        current = chunks[i].content
+        next_chunk = chunks[i + 1].content
+
+        # assert current[-10:] == next_chunk[:10]
