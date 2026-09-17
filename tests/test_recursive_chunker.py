@@ -542,6 +542,50 @@ def test_overlap_does_not_split_semantic_unit():
     # The overlapping unit must be the complete unit.
     assert chunks[0][-1] == chunks[1][0]
 
+def test_chunk_applies_semantic_overlap():
+    document = Document(
+        content=(
+            "First concept.\n\n"
+            "Second concept.\n\n"
+            "Third concept."
+        ),
+        metadata=Metadata(
+            title="test",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.ARCHITECTURE,
+        ),
+    )
+
+    sections = [
+        Section(
+            heading_path=["Test"],
+            content=document.content,
+        )
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=32,
+            chunk_overlap=1,
+        )
+    )
+
+    chunks = chunker.chunk(
+        document=document,
+        sections=sections,
+    )
+
+    assert len(chunks) == 2
+
+    assert chunks[0].content == (
+        "First concept.\n\n"
+        "Second concept."
+    )
+
+    assert chunks[1].content == (
+        "Second concept.\n\n"
+        "Third concept."
+    )
 
 
 

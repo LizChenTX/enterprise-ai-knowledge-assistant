@@ -41,11 +41,12 @@ class RecursiveChunker(BaseChunker):
                 DEFAULT_SEPARATORS,
             )
 
-            packed_chunks = self._pack_chunks(
+            packed_chunks = self._pack_chunks_with_overlap(
                 text_units
             )
 
-            for text in packed_chunks:
+            for units in packed_chunks:
+                text = self._render_chunk_units(units)
                 start_offset = document.content.find(text)
                 end_offset = start_offset + len(text)
                 chunks.append(
@@ -247,3 +248,12 @@ class RecursiveChunker(BaseChunker):
             chunks.append(current)
 
         return chunks
+
+    def _render_chunk_units(
+        self,
+        units: list[str],
+    ) -> str:
+        """
+        Convert semantic units into the final chunk text.
+        """
+        return "\n\n".join(units)
