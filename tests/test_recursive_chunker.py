@@ -480,3 +480,68 @@ def test_chunk_overlap():
         next_chunk = chunks[i + 1].content
 
         # assert current[-10:] == next_chunk[:10]
+
+
+def test_overlap_preserves_semantic_units():
+    """
+    Overlap should preserve complete semantic units.
+
+    Given:
+        A, B, C, D
+
+    With overlap=1:
+        [A, B]
+        [B, C]
+        [C, D]
+
+    The overlap should never cut a semantic unit into partial text.
+    """
+    units = [
+        "Unit A",
+        "Unit B",
+        "Unit C",
+        "Unit D",
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=20,
+            chunk_overlap=1,
+        )
+    )
+
+    chunks = chunker._pack_chunks_with_overlap(units)
+
+    assert chunks == [
+        ["Unit A", "Unit B"],
+        ["Unit B", "Unit C"],
+        ["Unit C", "Unit D"],
+    ]
+
+def test_overlap_does_not_split_semantic_unit():
+    units = [
+        "First concept",
+        "Second concept",
+        "Third concept",
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=30,
+            chunk_overlap=1,
+        )
+    )
+
+    chunks = chunker._pack_chunks_with_overlap(units)
+
+    # Every chunk must contain complete semantic units.
+    for chunk in chunks:
+        for unit in chunk:
+            assert unit in units
+
+    # The overlapping unit must be the complete unit.
+    assert chunks[0][-1] == chunks[1][0]
+
+
+
+

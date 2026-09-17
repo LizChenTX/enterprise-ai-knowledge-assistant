@@ -168,3 +168,82 @@ class RecursiveChunker(BaseChunker):
             )
 
         return chunks
+
+    def _pack_chunks_with_overlap(
+        self,
+        units: list[str],
+    ) -> list[list[str]]:
+        """
+        Pack semantic units into chunks while preserving
+        complete semantic units as overlap.
+
+        Example with overlap=1:
+
+            [A, B, C, D]
+
+        becomes:
+
+            [A, B]
+            [B, C]
+            [C, D]
+        """
+        if not units:
+            return []
+
+        chunks: list[list[str]] = []
+        current: list[str] = []
+        current_length = 0
+
+        for unit in units:
+            unit_length = len(unit)
+            separator_length = 2 if current else 0
+
+            # If adding this unit would exceed chunk_size,
+            # finalize the current chunk.
+            if (
+                current
+                and current_length
+                + separator_length
+                + unit_length
+                > self.config.chunk_size
+            ):
+                chunks.append(current)
+
+                # Preserve complete semantic units for overlap.
+                overlap_units: list[str] = []
+                overlap_length = 0
+
+                for previous_unit in reversed(current):
+                    if len(overlap_units) >= self.config.chunk_overlap:
+                        break
+
+                    previous_length = len(previous_unit)
+
+                    if (
+                        overlap_length
+                        + previous_length
+                        + (2 if overlap_units else 0)
+                        <= self.config.chunk_size
+                    ):
+                        overlap_units.insert(0, previous_unit)
+                        overlap_length += (
+                            previous_length
+                            + (2 if overlap_units else 0)
+                        )
+                    else:
+                        break
+
+                current = overlap_units + [unit]
+
+                current_length = sum(
+                    len(item) for item in current
+                ) + 2 * (len(current) - 1)
+
+            else:
+                current.append(unit)
+                current_length += separator_length + unit_length
+
+        if current:
+            chunks.append(current)
+
+        return chunks
