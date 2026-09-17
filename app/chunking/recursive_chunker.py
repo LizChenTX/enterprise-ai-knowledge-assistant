@@ -1,9 +1,10 @@
+from pydantic.dataclasses import dataclass
+
 from app.chunking.base_chunker import BaseChunker
 from app.config.chunking_config import ChunkConfig
 from app.models.chunk import Chunk
 from app.models.document import Document
 from app.models.section import Section
-
 
 DEFAULT_SEPARATORS = [
     "\n\n",
@@ -11,6 +12,12 @@ DEFAULT_SEPARATORS = [
     ". ",
     " ",
 ]
+
+@dataclass
+class TextUnit:
+    content: str
+    start_offset: int
+    end_offset: int
 
 
 class RecursiveChunker(BaseChunker):
@@ -257,3 +264,37 @@ class RecursiveChunker(BaseChunker):
         Convert semantic units into the final chunk text.
         """
         return "\n\n".join(units)
+
+    def _split_into_text_units(
+        self,
+        text: str,
+    ) -> list[TextUnit]:
+        units: list[TextUnit] = []
+
+        current_position = 0
+
+        for part in text.split("\n\n"):
+            content = part.strip()
+
+            if not content:
+                current_position += len(part) + 2
+                continue
+
+            start = text.find(
+                content,
+                current_position,
+            )
+
+            end = start + len(content)
+
+            units.append(
+                TextUnit(
+                    content=content,
+                    start_offset=start,
+                    end_offset=end,
+                )
+            )
+
+            current_position = end
+
+        return units

@@ -586,6 +586,39 @@ def test_chunk_applies_semantic_overlap():
         "Second concept.\n\n"
         "Third concept."
     )
+    
+def test_text_unit_preserves_offsets():
+    text = (
+        "First concept.\n\n"
+        "Second concept.\n\n"
+        "Third concept."
+    )
 
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=100,
+            chunk_overlap=0,
+        )
+    )
+
+    units = chunker._split_into_text_units(text)
+
+    assert len(units) == 3
+
+    assert units[0].content == "First concept."
+    assert units[1].content == "Second concept."
+    assert units[2].content == "Third concept."
+
+    assert text[
+        units[0].start_offset : units[0].end_offset
+    ] == units[0].content
+
+    assert text[
+        units[1].start_offset : units[1].end_offset
+    ] == units[1].content
+
+    assert text[
+        units[2].start_offset : units[2].end_offset
+    ] == units[2].content
 
 
