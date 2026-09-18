@@ -586,7 +586,7 @@ def test_chunk_applies_semantic_overlap():
         "Second concept.\n\n"
         "Third concept."
     )
-    
+
 def test_text_unit_preserves_offsets():
     text = (
         "First concept.\n\n"
@@ -620,5 +620,66 @@ def test_text_unit_preserves_offsets():
     assert text[
         units[2].start_offset : units[2].end_offset
     ] == units[2].content
+
+def test_packed_chunk_preserves_combined_offsets():
+    text = (
+        "First concept.\n\n"
+        "Second concept.\n\n"
+        "Third concept."
+    )
+
+    document = Document(
+        content=text,
+        metadata=Metadata(
+            title="test",
+            source=DocumentSource.MARKDOWN,
+            document_type=DocumentType.ARCHITECTURE,
+        ),
+    )
+
+    sections = [
+        Section(
+            heading_path=["Test"],
+            content=text,
+        )
+    ]
+
+    chunker = RecursiveChunker(
+        ChunkConfig(
+            chunk_size=32,
+            chunk_overlap=0,
+        )
+    )
+
+    chunks = chunker.chunk(
+        document=document,
+        sections=sections,
+    )
+
+    assert len(chunks) == 2
+
+    # First chunk contains Unit 1 + Unit 2.
+    first_chunk = chunks[0]
+
+    expected_first = (
+        "First concept.\n\n"
+        "Second concept."
+    )
+
+    assert first_chunk.content == expected_first
+
+    # The chunk should span from the beginning
+    # of Unit 1 to the end of Unit 2.
+    assert first_chunk.start_offset == 0
+    assert first_chunk.end_offset == len(
+        "First concept.\n\nSecond concept."
+    )
+
+    assert (
+        text[
+            first_chunk.start_offset:first_chunk.end_offset
+        ]
+        == expected_first
+    )
 
 
