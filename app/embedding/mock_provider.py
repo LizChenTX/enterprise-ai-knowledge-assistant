@@ -1,5 +1,6 @@
 
 from app.embedding.base import EmbeddingProvider
+from app.embedding.models import validate_embeddings
 
 
 class MockEmbeddingProvider(EmbeddingProvider):
@@ -12,14 +13,19 @@ class MockEmbeddingProvider(EmbeddingProvider):
         self.dimensions = dimensions
 
     def embed(self, text: str) -> list[float]:
-        """Return a deterministic, non-semantic vector for one text."""
         if not text.strip():
             raise ValueError("text must not be empty")
 
-        # Intentionally simple: this is test data, not a real embedding.
         value = float(len(text) % 10) / 10
-        return [value] * self.dimensions
+        vector = [value] * self.dimensions
+
+        validate_embeddings([vector], expected_count=1)
+        return vector
 
     def embed_batch(self, texts: list[str]) -> list[list[float]]:
-        """Embed multiple texts using the same behavior as embed()."""
-        return [self.embed(text) for text in texts]
+        embeddings = [self.embed(text) for text in texts]
+
+        return validate_embeddings(
+            embeddings,
+            expected_count=len(texts),
+        )
